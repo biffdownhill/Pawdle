@@ -7,30 +7,66 @@
 
 import SwiftUI
 
+/// Button variant styles for PawdleButton component.
 enum PawdleButtonVariant {
     case primary
     case secondary
+    
+    var backgroundColor: Color {
+        switch self {
+        case .primary:
+            return .theme.accent
+        case .secondary:
+            return .clear
+        }
+    }
+    
+    var borderColor: Color {
+        switch self {
+        case .primary:
+            return .clear
+        case .secondary:
+            return .theme.accent
+        }
+    }
+    
+    var foregroundColor: Color {
+        switch self {
+        case .primary:
+            return .theme.accentForeground
+        case .secondary:
+            return .theme.accent
+        }
+    }
 }
 
+/// Custom button style that provides consistent styling for PawdleButton variants.
 struct PawdleButtonStyle: ButtonStyle {
     var variant: PawdleButtonVariant
+    var fillParent: Bool = false
     
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .textStyle(.button)
-            .foregroundColor(Color.theme.accentForeground)
-            .frame(maxWidth: .infinity)
-            .frame(height: Size.xxxxl.rawValue)
+            .foregroundColor(variant.foregroundColor)
+            .padding(.vertical, Size.md.rawValue)
+            .padding(.horizontal, Size.lg.rawValue)
+            .frame(maxWidth: fillParent ? .infinity : nil)
             .background(
-                RoundedRectangle(cornerRadius: Size.sm.rawValue)
-                    .fill(Color.theme.accent)
-                    .opacity(configuration.isPressed ? 0.8 : 1.0)
+                Capsule()
+                    .fill(variant.backgroundColor)
             )
+            .overlay {
+                Capsule()
+                    .stroke(variant.borderColor, lineWidth: Size.xxs.rawValue)
+            }
+            .opacity(configuration.isPressed ? 0.8 : 1.0)
             .scaleEffect(configuration.isPressed ? 0.98 : 1.0)
             .animation(.easeInOut(duration: 0.1), value: configuration.isPressed)
     }
 }
 
+/// A reusable button component with consistent styling and multiple variants.
 struct PawdleButton: View {
     let title: String
     let variant: PawdleButtonVariant
@@ -38,6 +74,11 @@ struct PawdleButton: View {
     
     @Environment(\.isEnabled) private var isEnabled: Bool
     
+    /// Initializes a PawdleButton with a title, variant, and action closure.
+    /// - Parameters:
+    /// - title: The text to display on the button.
+    /// - variant: The button style variant. Defaults to `.primary`.
+    /// - action: The closure to execute when the button is tapped.
     init(
         _ title: String,
         variant: PawdleButtonVariant = .primary,
