@@ -49,22 +49,10 @@ extension DogRepository {
     static func live() -> Self {
         Self(
             fetchAllBreeds: {
-//                let url = Routes.DogCEO.allBreeds
-                let url = URL(string: "https://dog.ceo/api/breeds/list/all")!
-                let request = URLRequest(url: url)
-                let (data, response) = try await URLSession.shared.data(for: request)
-                guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
-                    throw NetworkError.serverError((response as? HTTPURLResponse)?.statusCode ?? 500)
-                }
-                guard !data.isEmpty else {
-                    throw NetworkError.noData
-                }
-                let decoder = JSONDecoder()
-                let breedsResponse = try decoder.decode(AllBreedsResponse.self, from: data)
-                let breeds = breedsResponse.message
-//                let networkManager = NetworkManager()
-//                let response = try await networkManager.get(endpoint: url, responseType: AllBreedsResponse.self)
-//                let breeds = response.message
+                let url = Routes.DogCEO.allBreeds
+                let networkManager = NetworkManager()
+                let response = try await networkManager.get(endpoint: url, responseType: AllBreedsResponse.self)
+                let breeds = response.message
                 return flattenBreeds(breeds)
             },
             fetchRandomImageUrl: { breed in
