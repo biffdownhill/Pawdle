@@ -9,9 +9,14 @@ import SwiftUI
 
 @main
 struct PawdleApp: App {
+    
+    init() {
+        Theme.configure()
+    }
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            HomeView()
         }
     }
 }
