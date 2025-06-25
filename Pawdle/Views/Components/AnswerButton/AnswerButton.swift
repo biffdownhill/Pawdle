@@ -40,12 +40,10 @@ struct AnswerButton: View {
             guard !isAnswered else { return } // Already answered
             selectedBreed = breed
         } label: {
-            HStack {
+            HStack(spacing: Size.sm.rawValue) {
                 Text(breed.name)
                     .textStyle(.body)
                     .multilineTextAlignment(.leading)
-                
-                Spacer()
                 
                 switch state {
                 case .correct, .wrong:
@@ -59,7 +57,6 @@ struct AnswerButton: View {
             .foregroundColor(state.textColor)
             .padding(.vertical, Size.md.rawValue)
             .padding(.horizontal, Size.lg.rawValue)
-            .frame(maxWidth: .infinity)
             .background(
                 Capsule()
                     .fill(state.backgroundColor)

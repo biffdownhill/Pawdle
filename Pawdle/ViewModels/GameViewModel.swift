@@ -114,8 +114,6 @@ class GameViewModel: ObservableObject {
     @MainActor
     func resetGame() {
         progress = 0.0
-        Task {
-            await loadNextQuestion()
-        }
+        nextQuestion()
     }
 }
