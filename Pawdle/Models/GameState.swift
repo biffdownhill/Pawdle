@@ -9,5 +9,6 @@ enum GameState: Equatable {
     case loading
     case playing(GameQuestion)
     case answered(GameQuestion)
+    case completed
     case error(String)
 }

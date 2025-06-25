@@ -54,8 +54,13 @@ struct HomeView: View {
                 }
             }
         }
+        .onChange(of: viewModel.selectedBreed) { newValue in
+            if let selectedBreed = newValue {
+                viewModel.selectAnswer(selectedBreed)
+            }
+        }
         .task {
-            viewModel.startGame()
+            await viewModel.startGame()
         }
         .animation(.default, value: viewModel.gameState)
     }
@@ -88,6 +93,8 @@ struct HomeView: View {
                 .disabled(viewModel.selectedBreed == nil)
                 .opacity(viewModel.selectedBreed == nil ? 0.0 : 1.0)
             }
+        case .completed:
+            congratulationsView
         case let .error(message):
             errorView(message: message)
         }
@@ -104,6 +111,39 @@ struct HomeView: View {
                 .textStyle(.body)
                 .foregroundColor(Color.theme.textSecondary)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    // MARK: - Congratulations View
+    private var congratulationsView: some View {
+        VStack(spacing: Size.lg.rawValue) {
+            Image("dog.happy")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 160, height: 160)
+            
+            Text("🎉 Great work! 🎉")
+                .textStyle(.title1)
+                .foregroundColor(Color.theme.textPrimary)
+                .multilineTextAlignment(.center)
+            
+            Spacer()
+                .frame(height: 40)
+            
+            Text("Do you want to continute playing?")
+                .textStyle(.body)
+                .foregroundColor(Color.theme.textSecondary)
+                .multilineTextAlignment(.center)
+                .padding(.horizontal, Size.lg)
+            
+            VStack(spacing: Size.md.rawValue) {
+                PawdleButton("Start Infinity Mode", variant: .secondary) {
+                    viewModel.continueInfinitePlay()
+                }
+            }
+            .padding(.top, Size.md)
+        }
+        .padding(.lg)
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
@@ -125,7 +165,9 @@ struct HomeView: View {
                 .multilineTextAlignment(.center)
             
             Button("Try Again") {
-                viewModel.startGame()
+                Task {
+                    await viewModel.startGame()
+                }
             }
             .padding(.horizontal, Size.xl)
             .padding(.vertical, Size.md)

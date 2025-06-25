@@ -13,7 +13,7 @@ class GameViewModel: ObservableObject {
     @MainActor @Published var selectedBreed: DogBreed?
     @MainActor @Published private(set) var progress: Double? = 0.0
     
-    private let numberOfQuestions: Double = 10
+    private let numberOfQuestions: Double = 1
     
     private let dogRepository: DogRepository
     private let imageRepository: ImageRepository
@@ -35,10 +35,9 @@ class GameViewModel: ObservableObject {
     }
     
     // MARK: - Game Initialization
-    func startGame() {
-        Task {
-            await loadBreeds()
-        }
+    @MainActor
+    func startGame() async {
+        await loadBreeds()
     }
     
     @MainActor
@@ -83,22 +82,30 @@ class GameViewModel: ObservableObject {
     // MARK: - Answer Handling
     @MainActor
     func selectAnswer(_ selectedBreed: DogBreed) {
-        guard var progress, case .playing(let question) = gameState else { return }
+        guard case .playing(let question) = gameState else { return }
         
         let isCorrect = selectedBreed == question.correctBreed
-        let change = 1.0 / numberOfQuestions
         
-        if isCorrect {
-            progress += change
-        } else if progress >= change {
-            progress -= change
-        } else {
-            progress = 0.0
+        if var progress {
+            let change = 1.0 / numberOfQuestions
+            if isCorrect {
+                progress += change
+            } else if progress >= change {
+                progress -= change
+            } else {
+                progress = 0.0
+            }
+            
+            self.progress = progress
         }
         
-        self.progress = progress
+        // Check if game is completed
+        if progress ?? 0 >= 1.0 {
+            gameState = .completed
+        } else {
+            gameState = .answered(question)
+        }
         
-        gameState = .answered(question)
         self.selectedBreed = selectedBreed
     }
     
@@ -110,10 +117,16 @@ class GameViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Game Reset
+    // MARK: - Game Management
     @MainActor
     func resetGame() {
         progress = 0.0
+        nextQuestion()
+    }
+    
+    @MainActor
+    func continueInfinitePlay() {
+        progress = nil
         nextQuestion()
     }
 }
