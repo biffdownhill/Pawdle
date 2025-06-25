@@ -5,9 +5,9 @@
 A good friend of yours loves dogs, but struggles to remember which breed is which. They have approached you to see if you can build an app that will help them remember. They’d love an app that shows them a
 picture of a dog and asks them which breed it is- and gives them a warm sense of satisfaction when they get it right.
 
-## Notes
+### How It Works
 
-Tests were run on an iPhone 16 Pro.
+The premise of the app is simple: show a picture of a dog, ask the user to identify the breed, and provide feedback on their answer. The app is designed to be used once a day, to help the user gradually learn and remember different dog breeds. If the user's still wanting to continue after reaching their daily goal, they have the option to continue playing indefinitely.
 
 ## Code Overview
 
@@ -31,3 +31,7 @@ Tests were run on an iPhone 16 Pro.
 - Add an animation to the celebration screen when the user gets all answers correct.
 - Add nicer animations for when an answer is selected.
 - Improve the appearance and functionality of the toolbar.
+
+## Additional Notes
+
+Tests were run on an iPhone 16 Pro.
