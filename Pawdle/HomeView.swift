@@ -40,12 +40,10 @@ struct HomeView: View {
             .toolbar {
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Menu {
-                        Button("Reset Game") {
-                            viewModel.resetGame()
-                        }
-                        
                         Button("New Question") {
-                            viewModel.nextQuestion()
+                            Task {
+                                await viewModel.loadNextQuestion()
+                            }
                         }
                     } label: {
                         Image(systemName: "ellipsis.circle")
@@ -88,7 +86,9 @@ struct HomeView: View {
                 )
                 
                 PawdleButton("Next Question") {
-                    viewModel.nextQuestion()
+                    Task {
+                        await viewModel.loadNextQuestion()
+                    }
                 }
                 .disabled(viewModel.selectedBreed == nil)
                 .opacity(viewModel.selectedBreed == nil ? 0.0 : 1.0)

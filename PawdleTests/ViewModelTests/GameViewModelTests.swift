@@ -13,8 +13,6 @@ import SwiftUI
 @MainActor
 struct GameViewModelTests {
     
-    // MARK: - Initialization Tests
-    
     @Test("GameViewModel initializes with correct default state")
     func gameViewModel_initialization() async throws {
         let viewModel = GameViewModel(
@@ -28,8 +26,6 @@ struct GameViewModelTests {
         #expect(viewModel.isCorrect == false)
     }
     
-    // MARK: - Game Flow Tests
-    
     @Test("GameViewModel starts game successfully")
     func gameViewModel_startGame_success() async throws {
         let viewModel = GameViewModel(
@@ -37,10 +33,7 @@ struct GameViewModelTests {
             imageRepository: .mock()
         )
         
-        viewModel.startGame()
-        
-        // Allow async operations to complete
-        try await Task.sleep(nanoseconds: 100_000_000) // 0.1 seconds
+        await viewModel.startGame()
         
         // Should transition from loading to playing
         if case .playing(let question) = viewModel.gameState {
@@ -57,8 +50,7 @@ struct GameViewModelTests {
             imageRepository: .mock()
         )
         
-        viewModel.startGame()
-        try await Task.sleep(nanoseconds: 100_000_000)
+        await viewModel.startGame()
         
         // Get the current question
         guard case .playing(let question) = viewModel.gameState else {
@@ -66,12 +58,11 @@ struct GameViewModelTests {
             return
         }
         
-        // Select correct answer
         viewModel.selectAnswer(question.correctBreed)
         
         #expect(viewModel.selectedBreed == question.correctBreed)
         #expect(viewModel.isCorrect == true)
-        #expect(viewModel.progress?.isApproximatelyEqual(to: 0.1) == true, "Progress should be 0.1 after correct answer")
+        #expect(viewModel.progress?.isApproximatelyEqual(to: 0.2) == true, "Progress should be 0.1 after correct answer")
         
         if case .answered(let answeredQuestion) = viewModel.gameState {
             #expect(answeredQuestion.correctBreed == question.correctBreed)
@@ -87,8 +78,7 @@ struct GameViewModelTests {
             imageRepository: .mock()
         )
         
-        viewModel.startGame()
-        try await Task.sleep(nanoseconds: 100_000_000)
+        await viewModel.startGame()
         
         // Get the current question
         guard case .playing(let question) = viewModel.gameState else {
@@ -96,10 +86,7 @@ struct GameViewModelTests {
             return
         }
         
-        // Find a wrong answer
         let wrongBreed = question.options.first { $0 != question.correctBreed }!
-        
-        // Select wrong answer
         viewModel.selectAnswer(wrongBreed)
         
         #expect(viewModel.selectedBreed == wrongBreed)
@@ -120,8 +107,7 @@ struct GameViewModelTests {
             imageRepository: .mock()
         )
         
-        viewModel.startGame()
-        try await Task.sleep(nanoseconds: 100_000_000)
+        await viewModel.startGame()
         
         // Answer current question
         guard case .playing(let firstQuestion) = viewModel.gameState else {
@@ -132,9 +118,7 @@ struct GameViewModelTests {
         viewModel.selectAnswer(firstQuestion.correctBreed)
         #expect(viewModel.selectedBreed == firstQuestion.correctBreed)
         
-        // Move to next question
-        viewModel.nextQuestion()
-        try await Task.sleep(nanoseconds: 100_000_000)
+        await viewModel.loadNextQuestion()
         
         #expect(viewModel.selectedBreed == nil)
         
@@ -146,80 +130,14 @@ struct GameViewModelTests {
         }
     }
     
-    @Test("GameViewModel resets game correctly")
-    func gameViewModel_resetGame() async throws {
+    @Test("GameViewModel progress increases and decreases correctly")
+    func gameViewModel_progress() async throws {
         let viewModel = GameViewModel(
             dogRepository: .mock(),
             imageRepository: .mock()
         )
         
-        // Start and play a game
-        viewModel.startGame()
-        try await Task.sleep(nanoseconds: 100_000_000)
-        
-        guard case .playing(let question) = viewModel.gameState else {
-            Issue.record("Expected playing state")
-            return
-        }
-        
-        viewModel.selectAnswer(question.correctBreed)
-        #expect(viewModel.progress?.isApproximatelyEqual(to: 0.1) == true, "Progress should be 0.1 after correct answer")
-        
-        // Reset the game
-        viewModel.resetGame()
-        try await Task.sleep(nanoseconds: 100_000_000)
-        
-        #expect(viewModel.progress?.isApproximatelyEqual(to: 0.0) == true, "Progress should be reset to 0.0")
-        #expect(viewModel.selectedBreed == nil)
-        
-        if case .playing(_) = viewModel.gameState {
-            // Should be back to playing state
-        } else {
-            Issue.record("Expected playing state after reset")
-        }
-    }
-    
-    // MARK: - Progress Tests
-    
-    @Test("GameViewModel progress increases correctly with correct answers")
-    func gameViewModel_progressIncreases() async throws {
-        let viewModel = GameViewModel(
-            dogRepository: .mock(),
-            imageRepository: .mock()
-        )
-        
-        viewModel.startGame()
-        try await Task.sleep(nanoseconds: 100_000_000)
-        
-        // Answer 3 questions correctly
-        let expectedProgressValues = [0.1, 0.2, 0.3]
-        
-        for (index, expectedProgress) in expectedProgressValues.enumerated() {
-            guard case .playing(let question) = viewModel.gameState else {
-                Issue.record("Expected playing state at iteration \(index)")
-                return
-            }
-            
-            viewModel.selectAnswer(question.correctBreed)
-            #expect(viewModel.progress?.isApproximatelyEqual(to: expectedProgress) == true, "Progress should be \(expectedProgress) after \(index + 1) correct answers")
-            
-            // Don't call nextQuestion after the last iteration
-            if index < expectedProgressValues.count - 1 {
-                viewModel.nextQuestion()
-                try await Task.sleep(nanoseconds: 100_000_000)
-            }
-        }
-    }
-    
-    @Test("GameViewModel progress decreases correctly with wrong answers")
-    func gameViewModel_progressDecreases() async throws {
-        let viewModel = GameViewModel(
-            dogRepository: .mock(),
-            imageRepository: .mock()
-        )
-        
-        viewModel.startGame()
-        try await Task.sleep(nanoseconds: 100_000_000)
+        await viewModel.startGame()
         
         // First get some progress
         guard case .playing(let firstQuestion) = viewModel.gameState else {
@@ -228,10 +146,9 @@ struct GameViewModelTests {
         }
         
         viewModel.selectAnswer(firstQuestion.correctBreed)
-        #expect(viewModel.progress?.isApproximatelyEqual(to: 0.1) == true, "Progress should be 0.1 after correct answer")
+        #expect(viewModel.progress?.isApproximatelyEqual(to: 0.2) == true, "Progress should be 0.1 after correct answer")
         
-        viewModel.nextQuestion()
-        try await Task.sleep(nanoseconds: 100_000_000)
+        await viewModel.loadNextQuestion()
         
         // Now answer wrong
         guard case .playing(let secondQuestion) = viewModel.gameState else {

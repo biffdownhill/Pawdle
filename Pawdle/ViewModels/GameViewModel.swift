@@ -13,7 +13,7 @@ class GameViewModel: ObservableObject {
     @MainActor @Published var selectedBreed: DogBreed?
     @MainActor @Published private(set) var progress: Double? = 0.0
     
-    private let numberOfQuestions: Double = 1
+    private let numberOfQuestions: Double = 5
     
     private let dogRepository: DogRepository
     private let imageRepository: ImageRepository
@@ -34,7 +34,6 @@ class GameViewModel: ObservableObject {
         self.imageRepository = imageRepository
     }
     
-    // MARK: - Game Initialization
     @MainActor
     func startGame() async {
         await loadBreeds()
@@ -53,9 +52,10 @@ class GameViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Question Management
     @MainActor
     func loadNextQuestion() async {
+        selectedBreed = nil
+        
         guard !allBreeds.isEmpty else {
             gameState = .error("No breeds available")
             return
@@ -79,7 +79,6 @@ class GameViewModel: ObservableObject {
         }
     }
     
-    // MARK: - Answer Handling
     @MainActor
     func selectAnswer(_ selectedBreed: DogBreed) {
         guard case .playing(let question) = gameState else { return }
@@ -110,23 +109,10 @@ class GameViewModel: ObservableObject {
     }
     
     @MainActor
-    func nextQuestion() {
-        selectedBreed = nil
+    func continueInfinitePlay() {
+        progress = nil
         Task {
             await loadNextQuestion()
         }
-    }
-    
-    // MARK: - Game Management
-    @MainActor
-    func resetGame() {
-        progress = 0.0
-        nextQuestion()
-    }
-    
-    @MainActor
-    func continueInfinitePlay() {
-        progress = nil
-        nextQuestion()
     }
 }
