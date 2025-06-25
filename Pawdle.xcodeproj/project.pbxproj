@@ -34,9 +34,32 @@
 		92A455232E0B757900120701 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		92769F7F2E0C0D69004140E8 /* Exceptions for "Pawdle" folder in "Pawdle" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"TestingUtilities/Double+isApproxEqual.swift",
+				"TestingUtilities/UIImage+createTestImage.swift",
+			);
+			target = 92A454F72E0B756700120701 /* Pawdle */;
+		};
+		92769F802E0C0D69004140E8 /* Exceptions for "Pawdle" folder in "PawdleTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				"TestingUtilities/Double+isApproxEqual.swift",
+				"TestingUtilities/UIImage+createTestImage.swift",
+			);
+			target = 92A455052E0B756700120701 /* PawdleTests */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		92A454FA2E0B756700120701 /* Pawdle */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				92769F7F2E0C0D69004140E8 /* Exceptions for "Pawdle" folder in "Pawdle" target */,
+				92769F802E0C0D69004140E8 /* Exceptions for "Pawdle" folder in "PawdleTests" target */,
+			);
 			path = Pawdle;
 			sourceTree = "<group>";
 		};
