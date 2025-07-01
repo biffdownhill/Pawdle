@@ -26,7 +26,8 @@ The premise of the app is simple: show a picture of a dog, ask the user to ident
 ## What I Would Add Next
 
 - Testing support for the repositories. Perhaps by injecting a mock network layer with relevant spy methods to capture functionality within the repository functions.
-- Add simple UI tests for basic functionality of certain features of the app.
+- Add some UI tests for basic functionality of certain features of the app.
+- Spike some better architecture design patters for the storage and business logic of the app - instead of having a single class view model, using dependency injection to further modularise the logic to improve testability, maintainability, and extensibility.
 - Add custom fonts to add a bit of personality to the app.
 - Add an animation to the celebration screen when the user gets all answers correct.
 - Add nicer animations for when an answer is selected.
